@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Nixie clock">
+    <title>Sample nixie clock</title>
+    <style>
+        html {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+            background: black;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <nixie-digit></nixie-digit>
+        <nixie-digit></nixie-digit>
+        <nixie-digit value=":"></nixie-digit>
+        <nixie-digit></nixie-digit>
+        <nixie-digit></nixie-digit>
+        <nixie-digit value=":"></nixie-digit>
+        <nixie-digit></nixie-digit>
+        <nixie-digit></nixie-digit>
+    </main>
+   
+    <script src="nixie-digit.js" type="module" defer></script>
+    <script defer>
+        const nixieDigits = document.querySelectorAll("nixie-digit");
+        setInterval(() => {
+            const time = new Date().toLocaleTimeString("it-IT");
+            nixieDigits.forEach((el, i) => el.setAttribute("value", time[i]));
+        }, 100);
+    </script>
+</body>
+</html>
