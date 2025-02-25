@@ -8,7 +8,8 @@ export class NixieDigit extends HTMLElement {
 	}
 
 	connectedCallback() {
-		document.adoptedStyleSheets = [NixieDigit.sheet];
+		const dom = this.attachShadow({ mode: "closed" });
+		dom.adoptedStyleSheets = [NixieDigit.sheet];
 
 		var cont = document.createElement("div");
 		cont.className = "nx-container";
@@ -16,7 +17,7 @@ export class NixieDigit extends HTMLElement {
 		this.digits[0].className = this.digits[1].className = "nx nx-10";
 		cont.appendChild(this.digits[0]);
 		cont.appendChild(this.digits[1]);
-		this.appendChild(cont);
+		dom.appendChild(cont);
 
 		this.currentIndex = 10;
 		this.previousIndex = 10;
