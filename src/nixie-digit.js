@@ -1,52 +1,114 @@
+/**
+ * Class representing a vintage nixie tube digit.
+ * @extends HTMLElement
+ */
 export class NixieDigit extends HTMLElement {
-	static sprites = "0123456789.:";
-	static observedAttributes = ["value"];
-	static sheet = NixieDigit.createSheet();
+    /**
+     * Array of characters representing the sprites.
+     * @type {string}
+     */
+    static sprites = "0123456789.:";
 
-	constructor() {
-		super();
-	}
+    /**
+     * Attributes to be observed.
+     * @type {string[]}
+     */
+    static observedAttributes = ["value"];
 
-	connectedCallback() {
-		const dom = this.attachShadow({ mode: "closed" });
-		dom.adoptedStyleSheets = [NixieDigit.sheet];
+    /**
+     * Creates and returns a global CSSStyleSheet.
+     * @returns {CSSStyleSheet}
+     */
+    static sheet = NixieDigit.createSheet();
 
-		var cont = document.createElement("div");
-		cont.className = "nx-container";
-		this.digits = [document.createElement("div"), document.createElement("div")];
-		this.digits[0].className = this.digits[1].className = "nx nx-10";
-		cont.appendChild(this.digits[0]);
-		cont.appendChild(this.digits[1]);
-		dom.appendChild(cont);
+    /**
+     * Called when the element is connected to the DOM.
+     */
+    connectedCallback() {
+        const dom = this.attachShadow({ mode: "closed" });
+        dom.adoptedStyleSheets = [NixieDigit.sheet];
 
-		this.currentIndex = 10;
-		this.previousIndex = 10;
+        this.digits = NixieDigit.createDigits(dom);
+		this.value = "."; // defaule value
 
-		this.render();
-	}
+        this.render();
+    }
 
-	attributeChangedCallback(_attribute, _previousValue, currentValue) {
-		const index = NixieDigit.sprites.indexOf(currentValue);
-		if (-1 === index) return;
+    /**
+     * Called when an observed attribute has been added, removed, updated, or replaced.
+     * @param {string} _attribute - The name of the attribute.
+     * @param {string} _previousValue - The previous value of the attribute.
+     * @param {string} currentValue - The new value of the attribute.
+     */
+    attributeChangedCallback(_attribute, _previousValue, currentValue) {
+		if (_attribute !== "value") return;
+		
+        const index = NixieDigit.sprites.indexOf(currentValue);
+        if (-1 === index) return;
+		
+		this._value = currentValue;
+        this.currentIndex = index;
+        if (!this.digits) return;
 
-		this.currentIndex = index;
-		if (!this.digits) return;
+        this.render();
+    }
 
-		this.render();
-	}
+    /**
+     * Getter for the value property.
+     * @returns {number} The current digit.
+     */
+    get value() {
+        return this._value;
+    }
 
-	render() {
-		if (this.timer) clearTimeout(this.timer);
-		this.timer = undefined;
+    /**
+     * Setter for the value property.
+     * @param {string} newValue - The new digit to set, one of "0123456789.:" or value is ignored
+     */
+    set value(newValue) {
+		this.setAttribute("value", newValue);
+    }
 
-		if (this.currentIndex === this.previousIndex) return;
+    /**
+     * Renders the Nixie digit.
+     */
+    render() {
+        if (this.timer) {
+            clearTimeout(this.timer);
+            this.timer = undefined;
+        }
 
-		this.digits[0].className = "nx nx-" + this.currentIndex;
-		this.digits[1].className = "nx nx-" + this.previousIndex;
-		this.previousIndex = this.currentIndex;
-		this.timer = setTimeout(() => this.digits[1].classList.add("nx-fade-out"));
-	}
+        if (this.currentIndex === this.previousIndex) return;
 
+        this.digits[0].className = "nx nx-" + this.currentIndex;
+        this.digits[1].className = "nx nx-" + this.previousIndex;
+        this.previousIndex = this.currentIndex;
+        this.timer = setTimeout(() => this.digits[1].classList.add("nx-fade-out"));
+    }
+
+    /**
+     * Creates and returns the digit elements.
+     * @param {ShadowRoot} dom - The shadow DOM.
+     * @returns {HTMLDivElement[]} The array of digit elements.
+     */
+    static createDigits(dom) {
+        const digits = [document.createElement("div"), document.createElement("div")];
+        digits[0].className = digits[1].className = "nx nx-10";
+
+        var container = document.createElement("div");
+        container.className = "nx-container";
+        container.appendChild(digits[0]);
+        container.appendChild(digits[1]);
+
+        dom.appendChild(container);
+
+        return digits;
+    }
+
+    /**
+     * Creates and returns a CSSStyleSheet.
+     * @returns {CSSStyleSheet} The created CSSStyleSheet.
+     */
 	static createSheet() {
 		const sheet = new CSSStyleSheet();
 		sheet.replaceSync(`
