@@ -39,11 +39,13 @@
    
     <script src="nixie-digit.js" type="module" defer></script>
     <script defer>
+    document.addEventListener("DOMContentLoaded", () => {
         const nixieDigits = document.querySelectorAll("nixie-digit");
         setInterval(() => {
             const time = new Date().toLocaleTimeString("it-IT");
             nixieDigits.forEach((el, i) => el.value = time[i]);
         }, 100);
+    });
     </script>
 </body>
 </html>
